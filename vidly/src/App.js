@@ -3,6 +3,8 @@ import Movies from "./components/movies";
 import "./App.css";
 
 class App extends Component {
+  state = {};
+
   render() {
     return (
       <main className="container">
