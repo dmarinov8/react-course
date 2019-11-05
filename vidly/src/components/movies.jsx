@@ -52,6 +52,10 @@ class Movies extends Component {
     this.setState({ sortColumn });
   };
 
+  handleNewMovie = () => {
+    this.props.history.push("/movies/new");
+  };
+
   getPagedData = () => {
     const {
       pageSize,
@@ -101,6 +105,9 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
+          <button onClick={this.handleNewMovie} className="btn btn-primary m-2">
+            New Movie
+          </button>
           {selectedGenre ? (
             <p>Showing {totalCount} movies in the database.</p>
           ) : (
