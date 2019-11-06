@@ -1,23 +1,50 @@
 import React from "react";
 import Form from "./common/form";
 import Joi from "joi-browser";
+import { getGenres } from "../services/fakeGenreService";
+import { saveMovie, getMovie } from "../services/fakeMovieService";
 
 class MovieForm extends Form {
   state = {
     data: {
       title: "",
-      genre: "",
+      genreId: "",
       numberInStock: "",
       dailyRentalRate: ""
     },
-    errors: {}
+    errors: {},
+    genres: []
   };
 
+  componentDidMount() {
+    const genres = [{ _id: "", name: "" }, ...getGenres()];
+    this.setState({ genres });
+
+    const movieId = this.props.match.params.id;
+    if (movieId === "new") return;
+
+    const movie = getMovie(movieId);
+    if (!movie) return this.props.history.replace("/not-found");
+
+    this.setState({ data: this.mapToViewModel(movie) });
+  }
+
+  mapToViewModel(movie) {
+    return {
+      _id: movie._id,
+      title: movie.title,
+      genreId: movie.genre._id,
+      numberInStock: movie.numberInStock,
+      dailyRentalRate: movie.dailyRentalRate
+    };
+  }
+
   schema = {
+    _id: Joi.string(),
     title: Joi.string()
       .required()
       .label("Title"),
-    genre: Joi.string()
+    genreId: Joi.string()
       .required()
       .label("Genre"),
     numberInStock: Joi.number()
@@ -33,20 +60,20 @@ class MovieForm extends Form {
   };
 
   doSubmit = () => {
+    const newMovie = saveMovie(this.state.data);
+    console.log(newMovie);
     // Call the server, save changes, redirect
-    console.log("Submitted.");
+    this.props.history.push("/movies");
   };
 
   render() {
-    const { match, history } = this.props;
-
     return (
       <div>
         <h1>Movie Form</h1>
 
         <form onSubmit={this.handleSubmit}>
           {this.renderInput("title", "Title")}
-          {this.renderInput("genre", "Genre")}
+          {this.renderInputSelect("genreId", "Genre", this.state.genres)}
           {this.renderInput("numberInStock", "Number in Stock")}
           {this.renderInput("dailyRentalRate", "Rate")}
           {this.renderButton("Save")}

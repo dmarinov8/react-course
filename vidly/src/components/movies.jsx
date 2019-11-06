@@ -3,7 +3,7 @@ import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listgroup";
-import { getMovies } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import _ from "lodash";
 
@@ -14,7 +14,8 @@ class Movies extends Component {
     pageSize: 4,
     currentPage: 1,
     selectedGenre: {},
-    sortColumn: { path: "title", order: "asc" }
+    sortColumn: { path: "title", order: "asc" },
+    searchString: ""
   };
 
   componentDidMount() {
@@ -28,8 +29,11 @@ class Movies extends Component {
   }
 
   handleDelete = movie => {
-    let moviesNew = this.state.movies.filter(m => m._id !== movie._id);
-    this.setState({ movies: moviesNew });
+    const deleted = deleteMovie(movie._id);
+    console.log(deleted);
+    this.props.history.push("/movies");
+    // let moviesNew = this.state.movies.filter(m => m._id !== movie._id);
+    // this.setState({ movies: moviesNew });
   };
 
   handleLike = movie => {
@@ -45,7 +49,7 @@ class Movies extends Component {
   };
 
   handleGenreSelect = genre => {
-    this.setState({ selectedGenre: genre, currentPage: 1 });
+    this.setState({ selectedGenre: genre, searchString: "", currentPage: 1 });
   };
 
   handleSort = sortColumn => {
@@ -56,22 +60,33 @@ class Movies extends Component {
     this.props.history.push("/movies/new");
   };
 
+  handleSearch = ({ currentTarget }) => {
+    const searchString = currentTarget.value;
+    this.setState({
+      searchString,
+      selectedGenre: { _id: "", name: "All Genres" },
+      currentPage: 1
+    });
+  };
+
   getPagedData = () => {
     const {
       pageSize,
       currentPage,
       sortColumn,
+      movies: allMovies,
       selectedGenre,
-      movies: allMovies
+      searchString
     } = this.state;
 
-    let { length: count } = allMovies;
-    if (count === 0) return <p>There are no movies in the database.</p>;
+    const regExp = new RegExp(searchString, "i");
+    const searchedMovies =
+      allMovies.filter(({ title }) => title.match(regExp)) || [];
 
     const filtered =
       selectedGenre && selectedGenre._id
-        ? allMovies.filter(m => m.genre._id === selectedGenre._id)
-        : allMovies;
+        ? searchedMovies.filter(m => m.genre._id === selectedGenre._id)
+        : searchedMovies;
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
@@ -87,7 +102,8 @@ class Movies extends Component {
       sortColumn,
       selectedGenre,
       movies: allMovies,
-      genres
+      genres,
+      searchString
     } = this.state;
 
     let { length: count } = allMovies;
@@ -113,6 +129,11 @@ class Movies extends Component {
           ) : (
             <p>Showing {totalCount} movies for this genre.</p>
           )}
+          <input
+            value={searchString}
+            onChange={this.handleSearch}
+            placeholder=" Search..."
+          />
           <MoviesTable
             movies={movies}
             sortColumn={sortColumn}
