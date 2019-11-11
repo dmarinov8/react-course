@@ -115,6 +115,7 @@ class Movies extends Component {
       genres,
       searchString
     } = this.state;
+    const { user } = this.props;
 
     let { length: count } = allMovies;
     if (count === 0) return <p>There are no movies in the database.</p>;
@@ -131,9 +132,14 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
-          <button onClick={this.handleNewMovie} className="btn btn-primary m-2">
-            New Movie
-          </button>
+          {user && (
+            <button
+              onClick={this.handleNewMovie}
+              className="btn btn-primary m-2"
+            >
+              New Movie
+            </button>
+          )}
           {selectedGenre ? (
             <p>Showing {totalCount} movies in the database.</p>
           ) : (

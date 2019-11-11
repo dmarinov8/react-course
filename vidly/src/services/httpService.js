@@ -1,7 +1,6 @@
 import axios from "axios";
 import logger from "./logService";
 import { toast } from "react-toastify";
-import auth from "./authService";
 
 axios.interceptors.response.use(null, error => {
   const expectedError =
@@ -26,5 +25,5 @@ export default {
   post: axios.post,
   put: axios.put,
   delete: axios.delete,
-  setJwt
+  setJwt: setJwt
 };

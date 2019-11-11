@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import Like from "./common/like";
 import Table from "./common/table";
+import { getCurrentUser } from "../services/authService";
 
 class MoviesTable extends Component {
   columns = [
@@ -21,14 +22,17 @@ class MoviesTable extends Component {
     },
     {
       key: "delete",
-      content: movie => (
-        <button
-          onClick={() => this.props.onDelete(movie)}
-          className="btn btn-danger btn-sm"
-        >
-          Delete
-        </button>
-      )
+      content: movie =>
+        getCurrentUser() ? (
+          <button
+            onClick={() => this.props.onDelete(movie)}
+            className="btn btn-danger btn-sm"
+          >
+            Delete
+          </button>
+        ) : (
+          ""
+        )
     }
   ];
 
